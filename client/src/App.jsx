@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000';
 
@@ -51,15 +51,22 @@ export default function App() {
     return `M ${lineWithoutMove} L 400 100 L 0 100 Z`;
   }, [chartPath]);
 
-  async function fetchRecent() {
-    const response = await fetch(`${API_BASE}/api/recent`);
-    const data = await response.json();
-    setRecent(data);
-  }
+  const fetchRecent = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE}/api/recent`);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Unable to load recent searches.');
+      }
+      setRecent(data);
+    } catch {
+      setRecent([]);
+    }
+  }, []);
 
   useEffect(() => {
-    fetchRecent().catch(() => {});
-  }, []);
+    fetchRecent();
+  }, [fetchRecent]);
 
   async function submit(event) {
     event.preventDefault();
