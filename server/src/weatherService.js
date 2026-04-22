@@ -1,5 +1,6 @@
 const OPEN_METEO_GEOCODE_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 const OPEN_METEO_ARCHIVE_URL = 'https://archive-api.open-meteo.com/v1/archive';
+const OPEN_METEO_FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
 
 const formatDate = (date) => date.toISOString().split('T')[0];
 
@@ -91,6 +92,38 @@ export async function getHistoricalTemperatures(latitude, longitude, timezone) {
       max,
       min,
       avg: Number(((max + min) / 2).toFixed(2))
+    };
+  });
+}
+
+export async function getForecastPredictions(latitude, longitude, timezone, days = 7) {
+  const params = new URLSearchParams({
+    latitude: String(latitude),
+    longitude: String(longitude),
+    daily: 'temperature_2m_max,temperature_2m_min',
+    timezone,
+    forecast_days: String(days)
+  });
+
+  const response = await fetch(`${OPEN_METEO_FORECAST_URL}?${params.toString()}`);
+
+  if (!response.ok) {
+    throw new Error('Unable to retrieve forecast weather data.');
+  }
+
+  const data = await response.json();
+
+  if (!data.daily?.time?.length) {
+    throw new Error('No forecast weather data available for that location.');
+  }
+
+  return data.daily.time.map((date, index) => {
+    const max = data.daily.temperature_2m_max[index];
+    const min = data.daily.temperature_2m_min[index];
+
+    return {
+      date,
+      predictedAvg: Number(((max + min) / 2).toFixed(2))
     };
   });
 }

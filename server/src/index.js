@@ -6,6 +6,7 @@ import { Prediction } from './models.js';
 import {
   createPredictions,
   geocodeLocation,
+  getForecastPredictions,
   getHistoricalTemperatures
 } from './weatherService.js';
 
@@ -34,7 +35,16 @@ app.get('/api/predict', async (req, res) => {
       resolvedLocation.longitude,
       resolvedLocation.timezone
     );
-    const predictions = createPredictions(history);
+    let predictions;
+    try {
+      predictions = await getForecastPredictions(
+        resolvedLocation.latitude,
+        resolvedLocation.longitude,
+        resolvedLocation.timezone
+      );
+    } catch {
+      predictions = createPredictions(history);
+    }
 
     const saved = await Prediction.create({
       locationQuery: location,
