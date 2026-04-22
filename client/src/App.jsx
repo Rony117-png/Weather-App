@@ -65,8 +65,13 @@ export default function App() {
 
   return (
     <main className="container">
-      <h1>Weather Prediction</h1>
-      <p>Predict upcoming temperature trends for any location using historical weather data.</p>
+      <div className="aurora aurora-one" aria-hidden="true" />
+      <div className="aurora aurora-two" aria-hidden="true" />
+
+      <section className="hero card">
+        <h1>Weather Prediction</h1>
+        <p>Predict upcoming temperature trends for any location using historical weather data.</p>
+      </section>
 
       <form onSubmit={submit} className="card form">
         <input
@@ -83,7 +88,7 @@ export default function App() {
       {error && <p className="error">{error}</p>}
 
       {result && (
-        <section className="card">
+        <section className="card fade-in">
           <h2>
             {result.resolvedLocation.name}, {result.resolvedLocation.country}
           </h2>
@@ -92,8 +97,8 @@ export default function App() {
           </svg>
 
           <div className="grid">
-            {result.predictions.map((prediction) => (
-              <article key={prediction.date}>
+            {result.predictions.map((prediction, index) => (
+              <article key={prediction.date} className="prediction" style={{ '--delay': `${index * 70}ms` }}>
                 <strong>{formatLabel(prediction.date)}</strong>
                 <p>{prediction.predictedAvg.toFixed(1)}°C</p>
               </article>
@@ -105,10 +110,13 @@ export default function App() {
       <section className="card">
         <h3>Recent Searches</h3>
         {!recent.length && <p>No searches yet.</p>}
-        <ul>
+        <ul className="recent-list">
           {recent.map((item) => (
             <li key={item._id}>
-              {item.resolvedLocation.name}, {item.resolvedLocation.country} - {new Date(item.createdAt).toLocaleString()}
+              <span>
+                {item.resolvedLocation.name}, {item.resolvedLocation.country}
+              </span>
+              <time>{new Date(item.createdAt).toLocaleString()}</time>
             </li>
           ))}
         </ul>

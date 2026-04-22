@@ -1,65 +1,231 @@
 :root {
-  color-scheme: light dark;
   font-family: Inter, system-ui, sans-serif;
+  color: #e2e8f0;
+  background-color: #020617;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-  color: #e2e8f0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #1d4ed8 0%, #0f172a 45%, #020617 100%);
 }
 
 .container {
-  max-width: 900px;
+  position: relative;
+  overflow: hidden;
+  max-width: 920px;
   margin: 0 auto;
-  padding: 2rem 1rem 3rem;
+  padding: 2.4rem 1rem 3rem;
+}
+
+.aurora {
+  position: absolute;
+  filter: blur(70px);
+  opacity: 0.35;
+  pointer-events: none;
+  animation: drift 14s ease-in-out infinite;
+}
+
+.aurora-one {
+  background: #22d3ee;
+  width: 240px;
+  height: 240px;
+  top: -70px;
+  left: -80px;
+}
+
+.aurora-two {
+  background: #a855f7;
+  width: 260px;
+  height: 260px;
+  right: -90px;
+  top: 160px;
+  animation-delay: -6s;
 }
 
 .card {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  border-radius: 14px;
+  position: relative;
+  backdrop-filter: blur(8px);
+  background: linear-gradient(160deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.65));
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 16px;
   padding: 1rem;
   margin-bottom: 1rem;
+  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.35);
+  transition: transform 200ms ease, border-color 200ms ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.6);
+}
+
+.hero h1 {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+}
+
+.hero p {
+  margin: 0;
+  color: #bfdbfe;
 }
 
 .form {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
 input,
 button {
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  border-radius: 10px;
-  padding: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 12px;
+  padding: 0.8rem;
   font-size: 1rem;
 }
 
 input {
   flex: 1;
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.8);
+}
+
+input:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
 }
 
 button {
-  background: #38bdf8;
-  color: #0f172a;
-  font-weight: 700;
+  background: linear-gradient(130deg, #22d3ee, #38bdf8 45%, #60a5fa);
+  color: #082f49;
+  font-weight: 800;
   cursor: pointer;
+  transition: transform 180ms ease, filter 180ms ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px) scale(1.01);
+  filter: brightness(1.05);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.fade-in {
+  animation: fadeIn 420ms ease;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.5rem;
+  gap: 0.6rem;
+}
+
+.prediction {
+  padding: 0.7rem;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(15, 23, 42, 0.55);
+  transform: translateY(10px);
+  opacity: 0;
+  animation: riseIn 400ms ease forwards;
+  animation-delay: var(--delay, 0ms);
+}
+
+.prediction p {
+  margin-bottom: 0.1rem;
 }
 
 .chart {
   width: 100%;
-  height: 140px;
-  margin-bottom: 0.75rem;
-  color: #38bdf8;
+  height: 150px;
+  margin: 0.4rem 0 0.8rem;
+  color: #22d3ee;
+}
+
+.chart polyline {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  animation: drawLine 1.2s ease forwards;
+}
+
+.recent-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.recent-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.recent-list time {
+  color: #93c5fd;
+  font-size: 0.9rem;
 }
 
 .error {
-  color: #fca5a5;
+  color: #fecaca;
+  font-weight: 600;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes riseIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(30px, 20px, 0);
+  }
+}
+
+@media (max-width: 620px) {
+  .form {
+    flex-direction: column;
+  }
+
+  .recent-list li {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
 }
