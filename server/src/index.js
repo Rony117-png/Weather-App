@@ -11,7 +11,8 @@ import {
 } from './weatherService.js';
 
 const app = express();
-const port = process.env.PORT || 4000;
+const defaultPort = 4000;
+const requestedPort = Number.parseInt(process.env.PORT ?? `${defaultPort}`, 10);
 const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/weather-app';
 
 app.use(cors());
@@ -74,12 +75,42 @@ app.get('/api/recent', async (_req, res) => {
   res.json(recent);
 });
 
+function listenWithPortFallback(startPort, maxAttempts = 10) {
+  return new Promise((resolve, reject) => {
+    let attempt = 0;
+
+    function attemptListen() {
+      const portToTry = startPort + attempt;
+      const server = app.listen(portToTry, () => {
+        if (attempt > 0) {
+          console.warn(
+            `Preferred port ${startPort} is in use. Running server on http://localhost:${portToTry} instead.`
+          );
+        } else {
+          console.log(`Server running on http://localhost:${portToTry}`);
+        }
+        resolve(server);
+      });
+
+      server.once('error', (error) => {
+        if (error.code === 'EADDRINUSE' && attempt < maxAttempts - 1) {
+          attempt += 1;
+          attemptListen();
+          return;
+        }
+
+        reject(error);
+      });
+    }
+
+    attemptListen();
+  });
+}
+
 async function startServer() {
   try {
     await mongoose.connect(mongoUri);
-    app.listen(port, () => {
-      console.log(`Server running on http://localhost:${port}`);
-    });
+    await listenWithPortFallback(requestedPort);
   } catch (error) {
     console.error('Failed to start server:', error.message);
     process.exit(1);
